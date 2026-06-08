@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
+
+export const dynamic = "force-dynamic";
 import { publicClient, FACTORY_ADDRESS, FACTORY_ABI, getCampaignData } from "@/lib/arc";
 
 const sql = neon(process.env.DATABASE_URL!);
