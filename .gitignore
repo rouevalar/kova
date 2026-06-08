@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+app/node_modules/
+
+# Next.js
+app/.next/
+app/out/
+
+# Env files
+app/.env.local
+app/.env.*.local
+.env
+.env.local
+
+# Foundry
+contracts/out/
+contracts/cache/
+contracts/broadcast/*/dry-run/
+
+# Build artifacts
+*.swp
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/

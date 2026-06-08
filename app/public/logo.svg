@@ -1,0 +1,20 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="4.5" r="2.5" fill="#C15F3C" opacity="0.45"/>
+  <circle cx="33.5" cy="10" r="2.5" fill="#C15F3C" opacity="0.55"/>
+  <circle cx="36" cy="24" r="2.5" fill="#C15F3C" opacity="0.45"/>
+  <circle cx="28" cy="36" r="2.5" fill="#C15F3C" opacity="0.55"/>
+  <circle cx="12" cy="36" r="2.5" fill="#C15F3C" opacity="0.45"/>
+  <circle cx="4" cy="24" r="2.5" fill="#C15F3C" opacity="0.55"/>
+  <circle cx="6.5" cy="10" r="2.5" fill="#C15F3C" opacity="0.45"/>
+  <line x1="20" y1="7" x2="20" y2="14" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <line x1="31.8" y1="11.8" x2="26" y2="16" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <line x1="33.5" y1="24" x2="27" y2="21" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <line x1="26.5" y1="34" x2="22" y2="28" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <line x1="13.5" y1="34" x2="18" y2="28" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <line x1="6.5" y1="24" x2="13" y2="21" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <line x1="8.2" y1="11.8" x2="14" y2="16" stroke="#C15F3C" stroke-width="1" stroke-opacity="0.25" stroke-dasharray="2 2"/>
+  <circle cx="20" cy="20" r="8" fill="#C15F3C" opacity="0.12"/>
+  <circle cx="20" cy="20" r="5.5" fill="#C15F3C" opacity="0.25"/>
+  <circle cx="20" cy="20" r="3" fill="#C15F3C"/>
+  <circle cx="27" cy="13" r="1.5" fill="#F4F3EE" opacity="0.8"/>
+</svg>
