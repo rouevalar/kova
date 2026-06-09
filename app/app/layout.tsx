@@ -3,7 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Kova — Fundraising Where Every Dollar Works",
+  title: "Kova",
   description: "Raise money that earns while you raise. Every USDC contribution goes straight into a yield vault. Donors give more than they donated.",
   icons: {
     icon: [
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     apple: "/logo.svg",
   },
   openGraph: {
-    title: "Kova — Fundraising Where Every Dollar Works",
+    title: "Kova",
     description: "Fundraising built on Arc. Every donation earns yield from the second it arrives.",
     type: "website",
     images: [{ url: "/logo.svg" }],
