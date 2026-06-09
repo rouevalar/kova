@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createWalletClient, custom, parseUnits, encodeFunctionData } from "viem";
 import { arcTestnet, FACTORY_ADDRESS, FACTORY_ABI, parseUsdc } from "@/lib/arc";
 import { Button } from "@/components/ui/Button";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Lock, AlertCircle, Calendar, Target, Tag } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -250,22 +251,13 @@ export function CreateCampaignForm() {
             />
           </div>
 
-          {/* Image URL */}
-          <div>
-            <label className={labelClass} style={labelStyle}>
-              Cover image URL <span style={{ color: "#7A7269" }}>(optional)</span>
-            </label>
-            <input
-              type="url"
-              placeholder="https://..."
-              value={form.imageUrl}
-              onChange={set("imageUrl")}
-              className={inputClass}
-              style={inputStyle}
-              onFocus={e => (e.target.style.borderColor = "#C15F3C")}
-              onBlur={e => (e.target.style.borderColor = "#2E2620")}
-            />
-          </div>
+          {/* Banner image */}
+          <ImageUpload
+            label="Campaign banner"
+            value={form.imageUrl}
+            onChange={url => setForm(p => ({ ...p, imageUrl: url }))}
+            aspectRatio="banner"
+          />
 
           {/* Category + Goal */}
           <div className="grid grid-cols-2 gap-4">

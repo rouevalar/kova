@@ -4,17 +4,36 @@ import { useEffect, useState } from "react";
 import { TrendingUp } from "lucide-react";
 
 export function LiveYieldTicker() {
-  const [yield_, setYield] = useState(0);
+  const [display, setDisplay] = useState<number | null>(null);
+  const [tickPerMs, setTickPerMs] = useState(0);
+  const [serverTs, setServerTs] = useState(0);
+  const [baseValue, setBaseValue] = useState(0);
 
-  // Simulate a slowly climbing yield number
   useEffect(() => {
-    const base = 12_847.32;
-    setYield(base);
-    const interval = setInterval(() => {
-      setYield((prev) => prev + Math.random() * 0.004);
-    }, 800);
-    return () => clearInterval(interval);
+    fetch("/api/stats")
+      .then(r => r.json())
+      .then(data => {
+        if (data.totalYield == null) return;
+        const base = Number(data.totalYield) / 1_000_000;
+        const perSec = data.yieldPerSecond / 1_000_000;
+        setBaseValue(base);
+        setServerTs(data.timestamp);
+        setTickPerMs(perSec / 1000);
+        setDisplay(base);
+      })
+      .catch(() => setDisplay(0));
   }, []);
+
+  useEffect(() => {
+    if (display === null || tickPerMs === 0) return;
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - serverTs;
+      setDisplay(baseValue + elapsed * tickPerMs);
+    }, 250);
+    return () => clearInterval(interval);
+  }, [baseValue, serverTs, tickPerMs, display]);
+
+  const shown = display ?? 0;
 
   return (
     <div
@@ -34,7 +53,7 @@ export function LiveYieldTicker() {
         className="text-xl font-bold tabular-nums"
         style={{ fontFamily: "Space Mono, monospace", color: "#C15F3C" }}
       >
-        ${yield_.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        ${shown.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </span>
       <TrendingUp size={16} style={{ color: "#C15F3C" }} />
     </div>
