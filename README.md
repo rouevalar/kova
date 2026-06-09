@@ -18,7 +18,7 @@ Kova works differently because it runs on Arc, and Arc makes money programmable 
 
 **Failed campaigns refund with interest.** If the goal is not reached, every donor gets their principal back plus their proportional share of whatever the pool earned. This has never existed in fundraising before.
 
-**Withdrawals are instant.** One transaction, under a second, anywhere USDC is accepted. No bank transfer. No 5-day wait. No country restrictions.
+**Withdrawals are instant.** One transaction, under a second, anywhere USDC is accepted. No bank transfer. No waiting five days. No country restrictions.
 
 **Privacy is real.** Donors can contribute without their wallet address appearing in the donor list. The campaign owner sees the total. The individual is not exposed.
 
@@ -30,7 +30,7 @@ Kova works differently because it runs on Arc, and Arc makes money programmable 
 
 **Frontend** — Next.js 16 App Router, Tailwind v4, TypeScript
 
-**Auth** — Privy (wallet-only login, embedded wallets for new users)
+**Auth** — Privy (wallet only login, embedded wallets for new users)
 
 **Database** — Neon PostgreSQL (campaign metadata, contribution history, user profiles)
 
@@ -117,8 +117,6 @@ On a production network this would be replaced with a real vault integration —
 
 USDC is the native gas token. Contributors pay fees in the same token they are donating in. There is no "you need ETH to donate USDC" problem. A first-time user can contribute immediately.
 
-Sub-second finality. The campaign dashboard updates the moment a transaction is confirmed. There is no waiting for block confirmations.
-
----
+Finality in under a second. The campaign dashboard updates the moment a transaction is confirmed. There is no waiting for block confirmations.
 
 Built on Arc Testnet. Every dollar earns while it waits.
