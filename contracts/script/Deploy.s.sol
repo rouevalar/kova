@@ -16,5 +16,6 @@ contract Deploy is Script {
 
         console.log("KovaFactory deployed at:", address(factory));
         console.log("Fee recipient:", factory.feeRecipient());
+        console.log("Yield seed per campaign:", factory.yieldSeedPerCampaign());
     }
 }

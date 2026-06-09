@@ -24,7 +24,7 @@ export const arcTestnet = defineChain({
 });
 
 export const USDC_ADDRESS = "0x3600000000000000000000000000000000000000" as `0x${string}`;
-export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0x75A2aeCAe57FbDdFDC2354f21D1416eb9Af27b4A") as `0x${string}`;
+export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0x7B12E5Bcd44eE9A7713C4D57D336766110938077") as `0x${string}`;
 
 export const publicClient = createPublicClient({
   chain: arcTestnet,
@@ -37,7 +37,12 @@ export const FACTORY_ABI = parseAbi([
   "function getCampaigns(uint256 offset, uint256 limit) external view returns (address[])",
   "function getMyCampaigns(address user) external view returns (address[])",
   "function allCampaigns(uint256) external view returns (address)",
+  "function depositReserve(uint256 amount) external",
+  "function reserveBalance() external view returns (uint256)",
+  "function yieldSeedPerCampaign() external view returns (uint256)",
   "event CampaignCreated(address indexed campaign, address indexed owner, string title, uint256 goal, uint256 deadline, bool privateMode)",
+  "event ReserveDeposited(address indexed from, uint256 amount)",
+  "event CampaignSeeded(address indexed campaign, uint256 amount)",
 ]);
 
 export const CAMPAIGN_ABI = parseAbi([
