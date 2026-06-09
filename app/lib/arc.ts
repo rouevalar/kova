@@ -24,7 +24,7 @@ export const arcTestnet = defineChain({
 });
 
 export const USDC_ADDRESS = "0x3600000000000000000000000000000000000000" as `0x${string}`;
-export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0x85cFf3D00c2e3c4665671FC43BbCE121451f0c59") as `0x${string}`;
+export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0x75A2aeCAe57FbDdFDC2354f21D1416eb9Af27b4A") as `0x${string}`;
 
 export const publicClient = createPublicClient({
   chain: arcTestnet,

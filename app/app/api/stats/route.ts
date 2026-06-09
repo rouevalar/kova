@@ -16,7 +16,7 @@ export async function GET() {
         COALESCE(SUM(yield_earned), 0)::text   AS total_yield,
         COUNT(*)::int                           AS campaign_count,
         COALESCE(SUM(donor_count), 0)::int      AS total_donors,
-        COALESCE(SUM(CASE WHEN NOT finalized THEN total_raised ELSE 0 END), 0)::text AS active_raised
+        COALESCE(SUM(CASE WHEN NOT finalized AND deadline > NOW() THEN total_raised ELSE 0 END), 0)::text AS active_raised
       FROM campaigns
     `;
     const row = rows[0];

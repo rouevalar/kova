@@ -9,6 +9,7 @@ async function getFeatured() {
     const rows = await sql`
       SELECT * FROM campaigns
       WHERE finalized = false
+        AND deadline > NOW()
       ORDER BY total_raised DESC
       LIMIT 6
     `;
