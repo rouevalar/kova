@@ -12,15 +12,15 @@ Kova works differently because it runs on Arc, and Arc makes money programmable 
 
 ## How it works
 
-**Creating a campaign** takes under two minutes. Connect a wallet, set a title, a goal in USDC, a deadline, and whether you want donor privacy. That is it. The campaign deploys as a smart contract on Arc.
+**Creating a campaign** takes under two minutes. Connect a wallet, fill in a title, goal, deadline, category, and an optional banner image. The campaign deploys as a smart contract on Arc Testnet. Every new campaign is automatically seeded with 1 USDC from the factory's yield reserve so that simulated yield payouts are backed by real USDC at finalization.
 
-**Contributions earn yield** from the second they arrive. Every USDC donated goes into a yield vault. The campaign dashboard shows two numbers updating in real time: the amount raised and the yield earned on top of it. A campaign targeting $10,000 that fills over 30 days might close at $10,340.
+**Contributions earn yield** from the second they arrive. The campaign page shows two numbers updating in real time: the amount raised and the yield earned on top of it. A campaign targeting $10,000 that fills over 30 days might close at $10,340.
 
 **Failed campaigns refund with interest.** If the goal is not reached, every donor gets their principal back plus their proportional share of whatever the pool earned. This has never existed in fundraising before.
 
 **Withdrawals are instant.** One transaction, under a second, anywhere USDC is accepted. No bank transfer. No 5-day wait. No country restrictions.
 
-**Privacy is real.** Donors can contribute without their wallet address appearing in the donor list. The campaign owner sees the total. The individual is not exposed. GoFundMe cannot offer this because their business model depends on public donor lists driving social proof.
+**Privacy is real.** Donors can contribute without their wallet address appearing in the donor list. The campaign owner sees the total. The individual is not exposed.
 
 **The fee.** Kova charges 1% of the yield earned, not of the principal donated. If a campaign raises $10,000 and earns $340 in yield, Kova takes $3.40. The donor's contribution is never touched.
 
@@ -28,35 +28,42 @@ Kova works differently because it runs on Arc, and Arc makes money programmable 
 
 **Contracts** — Solidity 0.8.24, deployed with Foundry on Arc Testnet (chain ID 5042002)
 
-**Frontend** — Next.js 15 App Router, Tailwind v4, TypeScript
+**Frontend** — Next.js 16 App Router, Tailwind v4, TypeScript
 
-**Auth** — Privy (embedded wallets, email login, injected wallet support)
+**Auth** — Privy (wallet-only login, embedded wallets for new users)
 
-**Database** — Neon PostgreSQL (campaign metadata, contribution history)
+**Database** — Neon PostgreSQL (campaign metadata, contribution history, user profiles)
 
-**Chain** — Arc Testnet, USDC as native gas token
+**Storage** — Vercel Blob (campaign banner images, profile photos)
+
+**Chain** — Arc Testnet, USDC as native gas token (6 decimals)
+
+## Live app
+
+https://kova-fundraising.vercel.app
 
 ## Deployed contracts
 
-| Contract     | Address |
-|--------------|---------|
-| KovaFactory  | `0x85cFf3D00c2e3c4665671FC43BbCE121451f0c59` |
+| Contract    | Address                                      |
+|-------------|----------------------------------------------|
+| KovaFactory | `0x7B12E5Bcd44eE9A7713C4D57D336766110938077` |
 
-Explorer: https://testnet.arcscan.app/address/0x85cFf3D00c2e3c4665671FC43BbCE121451f0c59
+Explorer: https://testnet.arcscan.app/address/0x7B12E5Bcd44eE9A7713C4D57D336766110938077
+
+The factory holds a 25 USDC yield reserve. Each campaign created receives 1 USDC from this reserve at deployment time to back real yield payouts at finalization.
 
 ## Running locally
 
 ```bash
-# Install app dependencies
 cd app && npm install
 
-# Copy the env template and fill in your values
+# Copy env and fill in values
 cp .env.local.example .env.local
 
-# Run database migrations
+# Run database migrations (creates campaigns, contributions, users tables)
 npx tsx lib/migrate.ts
 
-# Start the dev server
+# Start dev server
 npm run dev
 ```
 
@@ -66,10 +73,11 @@ npm run dev
 NEXT_PUBLIC_PRIVY_APP_ID=
 PRIVY_APP_SECRET=
 DATABASE_URL=
+BLOB_READ_WRITE_TOKEN=
 NEXT_PUBLIC_CHAIN_ID=5042002
 NEXT_PUBLIC_RPC_URL=https://rpc.testnet.arc.network
 NEXT_PUBLIC_USDC_ADDRESS=0x3600000000000000000000000000000000000000
-NEXT_PUBLIC_FACTORY_ADDRESS=0x85cFf3D00c2e3c4665671FC43BbCE121451f0c59
+NEXT_PUBLIC_FACTORY_ADDRESS=0x7B12E5Bcd44eE9A7713C4D57D336766110938077
 NEXT_PUBLIC_EXPLORER_URL=https://testnet.arcscan.app
 ```
 
@@ -83,17 +91,33 @@ DEPLOYER_PK=<your-private-key> forge script script/Deploy.s.sol:Deploy \
   --legacy
 ```
 
-Your deployer wallet needs testnet USDC for gas. Get it at https://faucet.circle.com — select Arc Testnet.
+After deploying, fund the factory's yield reserve:
+
+```bash
+# Approve the factory to pull USDC from your wallet
+cast send 0x3600000000000000000000000000000000000000 \
+  "approve(address,uint256)" <factory-address> <amount-in-micro-usdc> \
+  --rpc-url https://rpc.testnet.arc.network --private-key $DEPLOYER_PK --legacy
+
+# Deposit into the reserve
+cast send <factory-address> \
+  "depositReserve(uint256)" <amount-in-micro-usdc> \
+  --rpc-url https://rpc.testnet.arc.network --private-key $DEPLOYER_PK --legacy
+```
+
+Your deployer wallet needs testnet USDC for gas and the reserve deposit. Get it at https://faucet.circle.com — select Arc Testnet.
+
+## How yield works
+
+Yield is simulated at 5% APY inside the contract using a constant rate of `1585489599188` per USDC unit per second (scaled by 1e18). The `yieldEarned()` view computes `totalRaised × rate × timeElapsed / 1e18` on every call. No external protocol is involved on testnet. The factory's yield reserve ensures that when a campaign finalizes, the simulated yield number is backed by actual USDC in the contract.
+
+On a production network this would be replaced with a real vault integration — depositing contributions into USYC or a similar instrument and withdrawing actual earned interest at finalization.
 
 ## Why Arc
 
-Three things make this possible on Arc that are not possible elsewhere right now.
-
 USDC is the native gas token. Contributors pay fees in the same token they are donating in. There is no "you need ETH to donate USDC" problem. A first-time user can contribute immediately.
 
-Sub-second finality. The campaign dashboard updates the moment a transaction is confirmed. There is no waiting for block confirmations. The experience feels like paying for coffee, not settling a financial instrument.
-
-USYC on Arc. The yield vault is backed by US Treasury securities through Circle's USYC token. It is not speculative farm emissions. It is real, low-risk yield that happens to be on-chain.
+Sub-second finality. The campaign dashboard updates the moment a transaction is confirmed. There is no waiting for block confirmations.
 
 ---
 
