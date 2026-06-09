@@ -43,8 +43,18 @@ export function CampaignDetail({ address }: Props) {
   const { authenticated, login, user } = usePrivy();
   const { wallets } = useWallets();
 
+  interface OwnerProfile {
+    display_name: string | null;
+    avatar_url: string | null;
+    campaigns_created: number;
+    total_donated: string;
+    owner_total_raised: string;
+    account_type: string | null;
+  }
+
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
+  const [ownerProfile, setOwnerProfile] = useState<OwnerProfile | null>(null);
   const [amount, setAmount] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [contributing, setContributing] = useState(false);
@@ -118,6 +128,17 @@ export function CampaignDetail({ address }: Props) {
     }, 1000);
     return () => clearInterval(interval);
   }, [campaign]);
+
+  // Load owner profile
+  useEffect(() => {
+    if (!campaign?.owner) return;
+    fetch(`/api/users?address=${campaign.owner}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.user) setOwnerProfile(data.user);
+      })
+      .catch(console.error);
+  }, [campaign?.owner]);
 
   // Load my contribution
   useEffect(() => {
@@ -369,24 +390,56 @@ export function CampaignDetail({ address }: Props) {
           </div>
 
           {/* Owner */}
-          <div
-            className="flex items-center gap-3 p-4 rounded-xl"
-            style={{ background: "#161210", border: "1px solid #2E2620" }}
-          >
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-              style={{ background: "rgba(193,95,60,0.15)" }}
-            >
-              <span className="text-xs font-bold" style={{ color: "#C15F3C" }}>
-                {campaign.owner.slice(2, 4).toUpperCase()}
-              </span>
+          <div className="p-4 rounded-xl" style={{ background: "#161210", border: "1px solid #2E2620" }}>
+            <p className="text-xs uppercase tracking-wider mb-3" style={{ fontFamily: "Space Mono, monospace", color: "#7A7269" }}>
+              Campaign by
+            </p>
+            <div className="flex items-center gap-3 mb-4">
+              {ownerProfile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={ownerProfile.avatar_url}
+                  alt={ownerProfile.display_name ?? ""}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                  style={{ border: "1px solid #2E2620" }}
+                />
+              ) : (
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: "rgba(193,95,60,0.15)" }}
+                >
+                  <span className="text-sm font-bold" style={{ color: "#C15F3C" }}>
+                    {campaign.owner.slice(2, 4).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-semibold leading-tight" style={{ color: "#F4F3EE" }}>
+                  {ownerProfile?.display_name ?? shortenAddress(campaign.owner)}
+                  {isOwner && <span className="ml-2 text-xs font-normal" style={{ color: "#C15F3C" }}>(you)</span>}
+                </p>
+                {ownerProfile?.account_type && (
+                  <p className="text-xs mt-0.5 capitalize" style={{ color: "#7A7269" }}>
+                    {ownerProfile.account_type}
+                  </p>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="text-xs mb-0.5" style={{ color: "#7A7269" }}>Campaign by</p>
-              <p className="text-sm font-medium" style={{ color: "#F4F3EE" }}>
-                {shortenAddress(campaign.owner)}
-                {isOwner && <span className="ml-2 text-xs" style={{ color: "#C15F3C" }}>(you)</span>}
-              </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-lg" style={{ background: "#0E0B09" }}>
+                <p className="text-xs mb-0.5" style={{ color: "#7A7269" }}>Campaigns run</p>
+                <p className="text-base font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#F4F3EE" }}>
+                  {ownerProfile?.campaigns_created ?? 1}
+                </p>
+              </div>
+              <div className="p-3 rounded-lg" style={{ background: "#0E0B09" }}>
+                <p className="text-xs mb-0.5" style={{ color: "#7A7269" }}>Total raised</p>
+                <p className="text-base font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#F4F3EE" }}>
+                  ${ownerProfile
+                    ? formatUsdc(BigInt(ownerProfile.owner_total_raised ?? "0"))
+                    : formatUsdc(campaign.totalRaised)}
+                </p>
+              </div>
             </div>
           </div>
 

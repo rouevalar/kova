@@ -86,6 +86,15 @@ export async function POST(req: NextRequest) {
       RETURNING *
     `;
 
+    // Keep user's campaign count in sync
+    await sql`
+      INSERT INTO users (address, campaigns_created)
+      VALUES (${ownerAddress.toLowerCase()}, 1)
+      ON CONFLICT (address) DO UPDATE SET
+        campaigns_created = users.campaigns_created + 1,
+        updated_at        = NOW()
+    `;
+
     return NextResponse.json({ campaign: row }, { status: 201 });
   } catch (e) {
     console.error(e);

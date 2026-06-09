@@ -5,7 +5,7 @@ async function getStats() {
     const sql = neon(process.env.DATABASE_URL!);
     const [row] = await sql`
       SELECT
-        COUNT(*)::int AS campaign_count,
+        COUNT(*) FILTER (WHERE NOT finalized AND deadline > NOW())::int AS campaign_count,
         COALESCE(SUM(total_raised), 0) AS total_raised,
         COALESCE(SUM(yield_earned), 0) AS total_yield,
         COALESCE(SUM(donor_count), 0) AS total_donors

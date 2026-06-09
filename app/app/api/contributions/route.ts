@@ -74,6 +74,15 @@ export async function POST(req: NextRequest) {
       WHERE contract_address = ${contractAddress.toLowerCase()}
     `;
 
+    // Keep user's total donated in sync
+    await sql`
+      INSERT INTO users (address, total_donated)
+      VALUES (${donorAddress.toLowerCase()}, ${amount.toString()}::bigint)
+      ON CONFLICT (address) DO UPDATE SET
+        total_donated = users.total_donated + ${amount.toString()}::bigint,
+        updated_at    = NOW()
+    `;
+
     return NextResponse.json({ contribution: row }, { status: 201 });
   } catch (e) {
     console.error(e);

@@ -15,7 +15,12 @@ export async function GET(req: NextRequest) {
 
   try {
     const [user] = await sql`
-      SELECT * FROM users WHERE address = ${address.toLowerCase()}
+      SELECT u.*,
+        COALESCE(SUM(c.total_raised), 0)::bigint AS owner_total_raised
+      FROM users u
+      LEFT JOIN campaigns c ON c.owner_address = u.address
+      WHERE u.address = ${address.toLowerCase()}
+      GROUP BY u.address
     `;
     return NextResponse.json({ user: user ?? null });
   } catch (e) {
