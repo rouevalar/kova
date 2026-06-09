@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import { Building2, User, Upload, X, ArrowRight, Loader2 } from "lucide-react";
+import { Building2, User, Upload, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
 
