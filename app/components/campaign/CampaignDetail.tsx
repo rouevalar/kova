@@ -58,14 +58,48 @@ export function CampaignDetail({ address }: Props) {
   const pct = campaign ? progressPercent(campaign.totalRaised, campaign.goal) : 0;
   const addr = address as `0x${string}`;
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (retries = 3) => {
     try {
       const data = await getCampaignData(addr);
       setCampaign(data);
       setLiveYield(data.yieldEarned);
-    } catch {
+      setLoading(false);
+    } catch (err) {
+      if (retries > 0) {
+        // Chain may still be indexing — wait and retry
+        await new Promise(r => setTimeout(r, 1500));
+        return load(retries - 1);
+      }
+      // Fall back to DB record so the page is never blank if on-chain read fails
+      try {
+        const res = await fetch(`/api/campaigns/${addr}`);
+        if (res.ok) {
+          const { campaign: db } = await res.json();
+          if (db) {
+            setCampaign({
+              owner: db.owner_address,
+              title: db.title,
+              description: db.description,
+              imageUrl: db.image_url ?? "",
+              category: db.category,
+              goal: BigInt(db.goal),
+              deadline: BigInt(Math.floor(new Date(db.deadline).getTime() / 1000)),
+              privateMode: db.private_mode,
+              totalRaised: BigInt(db.total_raised),
+              yieldEarned: BigInt(db.yield_earned),
+              finalized: db.finalized,
+              goalReached: db.goal_reached,
+              donorCount: BigInt(db.donor_count),
+              createdAt: BigInt(Math.floor(new Date(db.created_at).getTime() / 1000)),
+              contractAddress: addr,
+            });
+            setLiveYield(BigInt(db.yield_earned));
+            setLoading(false);
+            return;
+          }
+        }
+      } catch { /* DB fallback also failed */ }
       setCampaign(null);
-    } finally {
       setLoading(false);
     }
   }, [addr]);

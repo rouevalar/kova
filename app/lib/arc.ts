@@ -76,41 +76,33 @@ export const ERC20_ABI = parseAbi([
 ]);
 
 export async function getCampaignData(address: `0x${string}`) {
-  const results = await publicClient.multicall({
-    contracts: [
-      { address, abi: CAMPAIGN_ABI, functionName: "owner" },
-      { address, abi: CAMPAIGN_ABI, functionName: "title" },
-      { address, abi: CAMPAIGN_ABI, functionName: "description" },
-      { address, abi: CAMPAIGN_ABI, functionName: "imageUrl" },
-      { address, abi: CAMPAIGN_ABI, functionName: "category" },
-      { address, abi: CAMPAIGN_ABI, functionName: "goal" },
-      { address, abi: CAMPAIGN_ABI, functionName: "deadline" },
-      { address, abi: CAMPAIGN_ABI, functionName: "privateMode" },
-      { address, abi: CAMPAIGN_ABI, functionName: "totalRaised" },
-      { address, abi: CAMPAIGN_ABI, functionName: "yieldEarned" },
-      { address, abi: CAMPAIGN_ABI, functionName: "finalized" },
-      { address, abi: CAMPAIGN_ABI, functionName: "goalReached" },
-      { address, abi: CAMPAIGN_ABI, functionName: "donorCount" },
-      { address, abi: CAMPAIGN_ABI, functionName: "createdAt" },
-    ],
-    allowFailure: false,
-  });
+  // Use individual eth_call via Promise.all — avoids Multicall3 dependency
+  const r = (fn: string) => publicClient.readContract({ address, abi: CAMPAIGN_ABI, functionName: fn as never });
+
+  const [
+    owner, title, description, imageUrl, category, goal, deadline,
+    privateMode, totalRaised, yieldEarned, finalized, goalReached, donorCount, createdAt,
+  ] = await Promise.all([
+    r("owner"), r("title"), r("description"), r("imageUrl"), r("category"),
+    r("goal"), r("deadline"), r("privateMode"), r("totalRaised"), r("yieldEarned"),
+    r("finalized"), r("goalReached"), r("donorCount"), r("createdAt"),
+  ]);
 
   return {
-    owner: results[0] as `0x${string}`,
-    title: results[1] as string,
-    description: results[2] as string,
-    imageUrl: results[3] as string,
-    category: results[4] as string,
-    goal: results[5] as bigint,
-    deadline: results[6] as bigint,
-    privateMode: results[7] as boolean,
-    totalRaised: results[8] as bigint,
-    yieldEarned: results[9] as bigint,
-    finalized: results[10] as boolean,
-    goalReached: results[11] as boolean,
-    donorCount: results[12] as bigint,
-    createdAt: results[13] as bigint,
+    owner: owner as `0x${string}`,
+    title: title as string,
+    description: description as string,
+    imageUrl: imageUrl as string,
+    category: category as string,
+    goal: goal as bigint,
+    deadline: deadline as bigint,
+    privateMode: privateMode as boolean,
+    totalRaised: totalRaised as bigint,
+    yieldEarned: yieldEarned as bigint,
+    finalized: finalized as boolean,
+    goalReached: goalReached as boolean,
+    donorCount: donorCount as bigint,
+    createdAt: createdAt as bigint,
     contractAddress: address,
   };
 }
